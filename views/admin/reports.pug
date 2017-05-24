@@ -1,0 +1,172 @@
+extends ../layout
+
+block adminNav
+    include ../adminNav
+
+block content
+
+    script.
+
+        $(function () {
+            enableCBGroup();
+            enableReportDropDown();
+            $("#optionsRadiosStudent").click(enableCBGroup);
+            $("#optionsRadiosTutor").click(enableCBGroup);
+            $("#useSavedReportCheckbox").click(enableReportDropDown)
+        });
+
+        function enableCBGroup() {
+            if ($("#optionsRadiosStudent").is(":checked")) {
+                $("input.studentCheckBoxes").attr("disabled", false);
+                $("input.tutorCheckBoxes").attr("disabled", true);
+            } else {
+                $("input.studentCheckBoxes").attr("disabled", true);
+                $("input.tutorCheckBoxes").attr("disabled", false);
+            }
+        }
+
+        function enableReportDropDown() {
+            if ($("#useSavedReportCheckbox").is(":checked")) {
+                $("#fileSelector").attr("disabled", false);
+                $("#inputFilename").attr("disabled", true);
+            } else {
+                $("#fileSelector").attr("disabled", true);
+                $("#inputFilename").attr("disabled", false);
+            }
+        }
+
+    h1= title
+
+    .container-fluid
+        .row
+            form.masterReportsForm(action='/admin/downloadReport' method='post')
+                .col.col-md-1
+                .col.col-md-3
+                    fieldset.reportPaneFieldset
+                        .reportPane
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group
+                                        div
+                                            b Select Individual
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#optionsRadiosStudent.form-check-input(type='radio', name='studentOrTutor', value='student', checked='true')
+                                                        |  Student
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#optionsRadiosTutor.form-check-input(type='radio', name='studentOrTutor', value='tutor')
+                                                        |  Tutor
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group.idNumber
+                                        label(for='studentIdNumber') ID Number
+                                        |
+                                        input#studentIdNumber.form-control(type='text', aria-describedby='idHelp', placeholder='Enter ID Number')
+                                        |
+                                        small#idHelp.form-text.text-muted (Cabrillo College student ID number)
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group
+                                        div
+                                            b Student Checkboxes
+                                            .form-check
+                                                label.form-check-label
+                                                    input#tutorsUtilized.form-check-input.studentCheckBoxes(type='checkbox' value='tutorsUtilized')
+                                                    |  Tutors utilized
+                                            .form-check
+                                                label.form-check-label
+                                                    input#classesHelped.form-check-input.studentCheckBoxes(type='checkbox' value='classesHelped')
+                                                    |  Classes helped
+                                            .form-check
+                                                label.form-check-label
+                                                    input#labHours.form-check-input.studentCheckBoxes(type='checkbox' value='labHours')
+                                                    |  Lab hours
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group
+                                        div
+                                            b Tutor Checkboxes
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#studentTutored.form-check-input.tutorCheckBoxes(type='checkbox' value='studentTutored')
+                                                        |  Students tutored
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#hoursWorked.form-check-input.tutorCheckBoxes(type='checkbox' value='hoursWorked')
+                                                        |  Hours worked
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#hoursSpentTutoring.form-check-input.tutorCheckBoxes(type='checkbox' value='hoursSpentTutoring')
+                                                        |  Hours spent tutoring
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#individualWeightPulled.form-check-input.tutorCheckBoxes(type='checkbox' value='individualWeightPulled')
+                                                        |  "weight pulled" ratio
+                .col.col-md-3
+                    fieldset.reportPaneFieldset
+                        .reportPane
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group.centerCheckboxes
+                                        div
+                                            b Local Center Statistics
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#tutorRequestFrequency.form-check-input(type='checkbox' value='tutorRequestFrequency')
+                                                        |  Tutor request frequency
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#totalWorkingHours.form-check-input(type='checkbox' value='totalWorkingHours')
+                                                        |  Total working hours
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#totalHoursTutored.form-check-input(type='checkbox' value='totalHoursTutored')
+                                                        |  Total hours tutored
+                                                .form-check
+                                                    label.form-check-label
+                                                        input#totalWeightPulled.form-check-input(type='checkbox' value='totalWeightPulled')
+                                                        |  Tutors "weight pulled" ratios
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group.limitResults
+                                        label(for='selectLimit') Limit number of results to:
+                                            |
+                                            select#selectLimit.form-control
+                                                option - none -
+                                                option 20
+                                                option 10
+                                                option 5
+                                                option 1
+                .col.col-md-1
+                .col.col-md-3
+                    fieldset.reportPaneFieldset
+                        .reportPane
+                            .row
+                                .col.col-md-12
+                                    button#saveReportAsButton.btn.btn-default(type='button') Save Current Report Configuration
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group.savedReports
+                                        .form-check
+                                            label.form-check-label
+                                                input#useSavedReportCheckbox.form-check-input(type='checkbox' value='useSavedReport' name='useSavedReportCheckbox')
+                                                |  Use a saved report
+                                            select#fileSelector.form-control(name='fileSelector')
+                                                - for (var i = 0; i < files.length; i++)
+                                                    option(value=files[i]) #{files[i]}
+                            .row
+                                .col.col-md-6
+                                    label.datePicker DatePicker1<br />select date
+                                .col.col-md-6
+                                    label.datePicker DatePicker2<br />select date
+                            .row
+                                .col.col-md-12
+                                    .form-group.idNumber
+                                        label(for='inputFilename') Enter filename for report:
+                                        |
+                                        input#inputFilename.form-control(type='text' name='inputFilename' placeholder='example-filename')
+                            .row
+                                .col.col-md-12
+                                    button.btn.btn-primary(type='submit') Generate Report
+                .col.col-md-1

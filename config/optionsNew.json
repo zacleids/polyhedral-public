@@ -1,0 +1,32 @@
+{
+  "tutorCenters": {
+    "MLC": {
+      "centerLocation": "MLC",
+      "requestsTable": true,
+      "tutorTable": true,
+      "scrollingText": {
+        "enabled": true,
+        "text": "Message of the day, announcements, center hours... etc."
+      }
+    },
+    "STEM": {
+      "centerLocation": "MLC",
+      "requestsTable": true,
+      "tutorTable": true,
+      "scrollingText": {
+        "enabled": true,
+        "text": "STEM center is WAYYYYYYYYY better than the MLC"
+      }
+    }
+  ,
+    "ASC": {
+      "centerLocation": "MLC",
+      "requestsTable": false,
+      "tutorTable": true,
+      "scrollingText": {
+        "enabled": true,
+        "text": "ASC Rules"
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+extends ../layout
+
+block adminNav
+    include ../adminNav
+
+block content
+    h1= title
+    table.table.table-striped(id='classOccurrences')
+        thead
+            th CourseName
+            th Occurrence
+        tbody
+            - for(var course in classWithOccurrences)
+                tr
+                    td #{course}
+                    td #{classWithOccurrences[course]}
+    div
+        p Number of tutors in center: #{numTutorsInCenter}
+    div
+        p Number of people being tutored: #{numTutorsTutoring}

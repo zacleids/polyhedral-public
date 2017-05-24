@@ -1,0 +1,508 @@
+extends layout
+
+block content
+    .container-fluid
+        .row
+            .col-md-2
+                //p
+                    button#testSRefresh.btn.btn-default(type='submit' onclick='getStudents();') Refresh Students
+                //p
+                    button#testRRefresh.btn.btn-default(type='submit' onclick='getRequests();') Refresh Requests
+                //p
+                    button#testTRefresh.btn.btn-default(type='submit' onclick='getTutors();') Refresh Tutors
+            .col-md-4
+                .row
+                    .col-md-12
+                        fieldset.tableBorder
+                            legend.tableBorder Students
+                                .insideLegend.insideStudentLegend
+                                    table.table.table-striped.table-hover(id='studentTable')
+                                        thead
+                                            th Name
+                                            th Course
+                                            th Location
+                                        tbody
+                                            - for(var i = 0; i < students.length; i++)
+                                                tr(data-id=students[i].id)
+                                                    td #{students[i].name}
+                                                    td #{students[i].course}
+                                                    td #{students[i].location}
+                                    ul#studentContextMenu.dropdown-menu
+                                        li
+                                            a(data-action='request') Request Tutor
+                                        li
+                                            a(data-action='changeLocation') Change Location
+                                        li
+                                            a(data-action='changeSubject') Change Subjects
+                                        li.divider
+                                        li
+                                            a(data-action='studentSignOut') Sign Out
+            .col-md-4
+                if(requestsTable)
+                    .row
+                        .col-md-12
+                            fieldset.tableBorder
+                                legend.tableBorder Requests
+                                    .insideLegend.insideRequestLegend
+                                        table.table.table-striped.table-hover(id='requestsTable')
+                                            thead
+                                                th Name
+                                                th Course
+                                                th Location
+                                                th Wait Time
+                                                th Request
+                                                th Tutor
+                                            tbody
+                                                - for(var i = 0; i < requests.length; i++)
+                                                    tr(data-id=requests[i].id style="background-color:" + requests[i].color)
+                                                        td #{requests[i].requestingStudent}
+                                                        td #{requests[i].requestedCourse}
+                                                        td #{requests[i].requestedLocation}
+                                                        td #{requests[i].requestTime}
+                                                        td #{requests[i].requestedTutor}
+                                                        td #{requests[i].assignedTutor}
+                                        ul#requestContextMenu.dropdown-menu
+                                            li
+                                                a(data-action='beginTutoring') Begin Tutoring
+                                            li
+                                                a(data-action='finishTutoring') Finish Tutoring
+                                            //li
+                                                a(data-action='requestMaster') Request Master Tutor
+                                            li.divider
+                                            li
+                                                a(data-action='deleteRequest') Delete Request
+                if(tutorTable)
+                    .row
+                        .col-md-12
+                            fieldset.tableBorder
+                                legend.tableBorder Tutors
+                                    button.btn.btn-default.btn-sm(id='#tutorSignInButton' data-toggle='modal', data-target='#tutorSignInModal' style='margin-left: 20px; margin-bottom: 5px') Tutor Sign In
+                                    .insideLegend.insideTutorLegend
+                                        table.table.table-striped.table-hover(id='tutorsTable')
+                                            thead
+                                                th Name
+                                                th Login Time
+                                            tbody
+                                                - for(var i = 0; i < tutors.length; i++)
+                                                    tr(data-id=tutors[i].id)
+                                                        td #{tutors[i].name}
+                                                        td #{tutors[i].loginTime}
+                                        ul#tutorContextMenu.dropdown-menu
+                                            li
+                                                a(data-action='unrequestable') Become Unrequestable
+                                            li.divider
+                                            li
+                                                a(data-action='clockOut') Clock Out
+            .col-md-2
+
+        if(scrollingText.enabled)
+            .bottom-bar
+                .scrollingText
+                    h3 #{scrollingText.text}
+
+        #tutorSignInModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='tutorSignInModalLabel', aria-hidden='true')
+            .modal-dialog
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal')
+                            span(aria-hidden='true') &times;
+                            |
+                            span.sr-only Close
+                        h4#tutorSignInModalLabel.modal-title Please sign in to begin tutoring
+                    .modal-body
+                        form#tutorLoginForm(role='form' action='/tutorCenter/' + centerLocation method='post')
+                            input(type='hidden' value=centerLocation name='center')
+                            .form-group
+                                label(for='tutorSignInID') Cabrillo ID
+                                |
+                                input#tutorSignInID.form-control(type='text', placeholder='ex.: edbrau1234' name='tutorId')
+                            .form-group
+                                label(for='tutorSignInPass') Password
+                                |
+                                input#tutorSignInPass.form-control(type='password', placeholder='Password' name='tutorPassword')
+                            |
+                            button#subTutorSignIn.btn.btn-primary(type='submit') Sign In
+                            if(showTutorError)
+                                span#tutorSignInError Invalid username or password
+
+        #tutorRequestModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='tutorRequestModal', aria-hidden='true')
+            .modal-dialog
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal')
+                            span(aria-hidden='true') &times;
+                            |
+                            span.sr-only Close
+                        h4#tutorRequestModalLabel.modal-title Please request a tutor
+                    .modal-body
+                        form#tutorRequestForm(role='form' action='#' onsubmit="return false;" method='post')
+                            input#reqStudentID(type='hidden' value='' name='reqStudentID')
+                            .form-group
+                                label(for='selectTutor') Select a tutor
+                                |
+                                select#selectTutor.form-control(name='selectTutor')
+                                    - for (var i = 0; i < tutors.length; i++)
+                                        option(value=tutors[i].id) #{tutors[i].name}
+                            |
+                            button#subTutorRequest.btn.btn-primary(type='submit' onclick='requestTutor();') Submit Request
+
+        #changeLocationModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='changeLocationModal', aria-hidden='true')
+            .modal-dialog
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal')
+                            span(aria-hidden='true') &times;
+                            |
+                            span.sr-only Close
+                        h4#changeLocationModalLabel.modal-title Please select a new location
+                    .modal-body
+                        form#changeLocationForm(role='form' action='#' onsubmit='return false;' method='post')
+                            input#CLStudentID(type='hidden' value='' name='CLStudentID')
+                            .form-group
+                                label(for='selectNewLocation') Select a new location
+                                |
+                                select#selectNewLocation.form-control(name='selectNewLocation')
+                                    - for (var i = 0; i < locations.length; i++)
+                                        option(value=locations[i].id) #{locations[i].name}
+                            |
+                            button#subChangeLocation.btn.btn-primary(type='submit' onclick='changeLocation();') Submit Request
+
+        #changeSubjectModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='changeSubjectModal', aria-hidden='true')
+            .modal-dialog
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal')
+                            span(aria-hidden='true') &times;
+                            |
+                            span.sr-only Close
+                        h4#changeSubjectModalLabel.modal-title Please select a new subject
+                    .modal-body
+                        form#changeSubjectModalForm(role='form' action='#' onsubmit='return false;' method='post')
+                            input#CSubStudentID(type='hidden' value='' name='CSubStudentID')
+                            .form-group
+                                label(for='selectNewSubject') Select a new subject
+                                |
+                                select#selectNewSubject.form-control(name='selectNewSubject')
+                                    option(value='#') -Select Subject-
+                            |
+                            button#subChangeSubject.btn.btn-primary(type='submit' onclick='changeCourse();') Submit Request
+
+        #beginTutoringModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='beginTutoringModal', aria-hidden='true')
+            .modal-dialog
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal')
+                            span(aria-hidden='true') &times;
+                            |
+                            span.sr-only Close
+                        h4#beginTutoringModalLabel.modal-title Which tutor are you?
+                    .modal-body
+                        form#beginTutoringModalForm(role='form' action='#' onsubmit='return false;' method='post')
+                            input#BTRequestID(type='hidden' value='' name='BTRequestID')
+                            .form-group
+                                label(for='selectNewSubject') Select a tutor
+                                |
+                                select#selectTutor2.form-control(name='selectTutor2')
+                                    option(value='#') -Select Tutor-
+                                    - for (var i = 0; i < tutors.length; i++)
+                                        option(value=tutors[i].id) #{tutors[i].name}
+                            |
+                            button#subSelectTutor.btn.btn-primary(type='submit' onclick='updateRequest();') Begin Tutoring
+
+
+    if(showTutorError)
+        script.
+            $(document).ready(function () {
+                $("#tutorSignInModal").modal();
+            });
+
+    script(src='/scripts/tutorCenterScript.js')
+
+    script.
+        $(document).ready(function () {
+            setTimeout(getRequests, 30000);
+            // Get the scrollbar width
+            var scrollbarWidth = getScrollbarWidth();
+
+            // insert rule so content doesn't shift on modal
+            var sheet = document.styleSheets[2];
+            //alert(JSON.stringify(sheet.href));
+            var selector = '.modal-open .navbar-fixed-top';
+            var rules = 'padding-right: ' + scrollbarWidth + 'px';
+            var index = -1;
+
+            var selector = 'div';
+            var rules = 'background-color: red';
+            addCSSRule(sheet, selector, rules, index);
+        });
+
+        var socket = io.connect('/#{centerLocation}'.replace(new RegExp(' ', 'g'), ''));
+        socket.on('reload', function () {
+            location.reload();
+        })
+
+        socket.on('getStudents', function () {
+            getStudents();
+        });
+
+        socket.on('getRequests', function () {
+            getRequests();
+        });
+
+        socket.on('getTutors', function () {
+            getTutors();
+        });
+
+        function getScrollbarWidth() {
+            var outer = document.createElement("div");
+            outer.style.visibility = "hidden";
+            outer.style.width = "100px";
+            outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+            document.body.appendChild(outer);
+
+            var widthNoScroll = outer.offsetWidth;
+            // force scrollbars
+            outer.style.overflow = "scroll";
+
+            // add innerdiv
+            var inner = document.createElement("div");
+            inner.style.width = "100%";
+            outer.appendChild(inner);
+
+            var widthWithScroll = inner.offsetWidth;
+
+            // remove divs
+            outer.parentNode.removeChild(outer);
+
+            return widthNoScroll - widthWithScroll;
+        }
+
+        function addCSSRule(sheet, selector, rules, index) {
+            if ("insertRule" in sheet) {
+                //alert('insert rule: ' + selector + "{" + rules + "}");
+                sheet.insertRule(selector + "{" + rules + "}", index);
+            }
+            else if ("addRule" in sheet) {
+                //alert('add rule');
+                sheet.addRule(selector, rules, index);
+            } else {
+                //alert('no css rules applied');
+            }
+        }
+
+        function studentSignOut(studentId) {
+            $.ajax({
+                type: 'post',
+                url: 'http://localhost:3000/tutorCenter/REST/studentSignOut',
+                dataType: 'json',
+                data: {
+                    'center': '#{centerLocation}',
+                    'studentId': studentId
+                },
+                success: function (data, status) {
+                    //refreshStudentTable(data['students']);
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+        }
+
+        function tutorSignOut(userId) {
+            $.ajax({
+                type: 'post',
+                url: 'http://localhost:3000/tutorCenter/REST/tutorSignOut',
+                dataType: 'json',
+                data: {'center': '#{centerLocation}', 'userId': userId},
+                success: function (data, status) {
+                    //refreshStudentTable(data['students']);
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+        }
+
+        // returns list of students from database
+        function getStudents() {
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/getStudents',
+                dataType: 'json',
+                data: {'center': '#{centerLocation}'},
+                success: function (data, status) {
+                    refreshStudentTable(data['students']);
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+        }
+
+        // returns list of requests from database
+        function getRequests() {
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/getRequests',
+                dataType: 'json',
+                data: {'center': '#{centerLocation}'},
+                success: function (data, status) {
+                    refreshRequestsTable(data['requests']);
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+        }
+
+        // returns list of tutors from database
+        function getTutors() {
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/getTutors',
+                dataType: 'json',
+                data: {'center': '#{centerLocation}'},
+                success: function (data, status) {
+                    refreshTutorsTable(data['tutors']);
+                    refreshTutorsList(data['tutors']);
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+        }
+
+        function userExists(studentId, cb) {
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/userExists',
+                dataType: 'json',
+                data: {'studentId': studentId},
+                success: function (data, status) {
+                    cb(data['exists']);
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+        }
+
+        function getClasses(studentId, selectorId) {
+            var $selectSubject = $('#' + selectorId);
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/getClasses',
+                dataType: 'json',
+                data: {'center': '#{centerLocation}', 'studentId': studentId},
+                success: function (data, status) {
+                    $selectSubject.html("<option value='#'>-Select Subject-</option>");
+                    for (var i = 0; i < data['classes'].length; i++) {
+                        $selectSubject.append("<option value='" + data['classes'][i].id + "'>" + data['classes'][i].name + '</option>');
+                    }
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+        }
+
+        function requestTutor(){
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/requestTutor',
+                dataType: 'json',
+                data: {
+                    'center': '#{centerLocation}',
+                    'studentId': $('#reqStudentID').val(),
+                    'tutorId': $('#selectTutor').val()
+                },
+                success: function (data, status) {
+
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+            $('#tutorRequestModal').modal('toggle');
+        }
+
+        function deleteRequest(requestId){
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/deleteRequest',
+                dataType: 'json',
+                data: {
+                    'center': '#{centerLocation}',
+                    'requestId': requestId
+                },
+                success: function (data, status) {
+
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+        }
+
+        function updateRequest(){
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/updateRequest',
+                dataType: 'json',
+                data: {
+                    'center': '#{centerLocation}',
+                    'requestId': $('#BTRequestID').val(),
+                    'tutorId': $('#selectTutor2').val()
+                },
+                success: function (data, status) {
+
+                },
+                complete: function (data, status) {
+                    //alert(status);
+                }
+            });
+            $('#beginTutoringModal').modal('toggle');
+        }
+
+        function changeLocation(){
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/changeLocation',
+                dataType: 'json',
+                data: {
+                    'center': '#{centerLocation}',
+                    'studentId': $('#CLStudentID').val(),
+                    'locationId': $('#selectNewLocation').val()
+                },
+                success: function (data, status) {
+
+                },
+                complete: function (data, status) {
+                    //alert(status);
+
+                }
+            });
+            $('#changeLocationModal').modal('toggle');
+        }
+
+        function changeCourse() {
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:3000/tutorCenter/REST/changeCourse',
+                dataType: 'json',
+                data: {
+                    'center': '#{centerLocation}',
+                    'studentId': $('#CSubStudentID').val(),
+                    'courseId': $('#selectNewSubject').val()
+                },
+                success: function (data, status) {
+
+                },
+                complete: function (data, status) {
+                    //alert(status);
+
+                }
+            });
+            $('#changeSubjectModal').modal('toggle');
+        }

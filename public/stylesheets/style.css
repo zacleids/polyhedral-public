@@ -1,0 +1,154 @@
+.modal-open .navbar-fixed-top {
+    padding-right: 15px;
+}
+
+body {
+    padding: 65px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+    color: #00B7FF;
+}
+#tutorSignInError, #adminSignInError {
+    color: red;
+    margin-left:10px;
+}
+#tutorSignInButton {
+    margin-left: 10px;
+}
+
+.centerChoicebtn {
+    margin: 20px;
+    padding: 20px;
+    width: 150px;
+    height: 80px;
+    white-space: normal;
+}
+
+.adminNavWrapper {
+    background-color: #e9e9e9;
+    display: inline-block;
+}
+
+.form-group {
+    margin-top: 20px;
+}
+
+.reportPane, .optionPane {
+    padding: 20px;
+    margin: 20px;
+    height: 75vh;
+}
+
+.reportPaneFieldset, .optionPaneFieldset {
+    border: solid lightgray 1px;
+}
+
+.adminNavLink {
+    color: dodgerblue;
+}
+
+.table {
+    font-size:12px;
+    border: solid lightgrey 1px;
+    padding: 20px;
+}
+
+.insideLegend {
+    overflow-y: scroll;
+    height: 40vh;
+}
+
+.insideStudentLegend {
+    height: 85vh;
+}
+
+#classOccurrences {
+    width:500px;
+}
+
+.bottom-bar {
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    text-align: center;
+}
+
+.scrollingText {
+    height: 50px;
+    overflow: hidden;
+    position: relative;
+}
+.scrollingText h3 {
+    font-size: 3em;
+    color: dodgerblue;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    line-height: 50px;
+    text-align: center;
+    /* Starting position */
+    -moz-transform:translateX(100%);
+    -webkit-transform:translateX(100%);
+    transform:translateX(100%);
+    /* Apply animation to this element */
+    -moz-animation: example1 15s linear infinite;
+    -webkit-animation: example1 15s linear infinite;
+    animation: example1 15s linear infinite;
+}
+/* Move it (define the animation) */
+@-moz-keyframes example1 {
+    0%   { -moz-transform: translateX(100%); }
+    100% { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes example1 {
+    0%   { -webkit-transform: translateX(100%); }
+    100% { -webkit-transform: translateX(-100%); }
+}
+@keyframes example1 {
+    0%   {
+        -moz-transform: translateX(100%); /* Firefox bug fix */
+        -webkit-transform: translateX(100%); /* Firefox bug fix */
+        transform: translateX(100%);
+    }
+    100% {
+        -moz-transform: translateX(-100%); /* Firefox bug fix */
+        -webkit-transform: translateX(-100%); /* Firefox bug fix */
+        transform: translateX(-100%);
+    }
+}
+
+.modal-content {
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+.modal-body .form-horizontal .col-sm-2,
+.modal-body .form-horizontal .col-sm-10 {
+    width: 100%
+}
+
+.modal-body .form-horizontal .control-label {
+    text-align: left;
+}
+.modal-body .form-horizontal .col-sm-offset-2 {
+    margin-left: 15px;
+}
+
+#contextMenuStudent, #contextMenuRequest, #contextMenuTutor {
+    position: absolute;
+    display: none;
+}
+
+@-moz-document url-prefix() {
+    li {
+        cursor: hand; /* firefox */
+    }
+}
+
+li {
+    cursor: pointer; /* chrome */
+}

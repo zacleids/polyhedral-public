@@ -1,0 +1,109 @@
+extends ../layout
+
+block adminNav
+    include ../adminNav
+
+block content
+
+    script.
+        $(function () {
+            enableCBGroup();
+            $("#scrollingText").click(enableCBGroup);
+            $('#centerSelector').change(function () {
+                getCenterData();
+            });
+            getCenterData();
+            enableCBGroup();
+        });
+
+        function getCenterData() {
+            //alert($("#centerSelector").val());
+            var location = window.location.href;
+            var url = location.replace("options", "getCenterInfo");
+            $.ajax({
+                type: 'get',
+                url: url,
+                dataType: 'json',
+                data: {'center': $('#centerSelector').val()},
+                success: function (data, status) {
+                    $('#requestsTable').prop('checked', data.requestsTable);
+                    $('#tutorTable').prop('checked', data.tutorTable);
+                    $('#scrollingText').prop('checked', data.scrollingText.enabled);
+                    $('input[name=message]').val(data.scrollingText.text);
+                }, complete: function (data, status) {
+                    //alert(JSON.stringify(data));
+                    enableCBGroup();
+                }
+            });
+        }
+
+        function enableCBGroup() {
+            if ($("#scrollingText").is(":checked")) {
+                $("input.textScrollMessage").attr("disabled", false);
+            } else {
+                $("input.textScrollMessage").attr("disabled", true);
+            }
+        }
+
+
+
+    h1= title
+    .container-fluid
+        .row
+            .col.col-md-1
+            .col.col-md-5
+                fieldset.optionPaneFieldset
+                    .optionPane
+                        form#submitOptions(action='/admin/options' method='post')
+                            .row
+                                .col.col-md-12
+                                    h3 General Center Customization
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group
+                                        div
+                                            b Which center would you like to configure?
+                                                .select
+                                                    select.form-control(name='centerSelector' id='centerSelector')
+                                                        - for (var i = 0; i < centers.length; i++)
+                                                            if (centers[i] === curCenter)
+                                                                option(value=centers[i] selected='selected') #{centers[i]}
+                                                            else
+                                                                option(value=centers[i]) #{centers[i]}
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group.centerOptionsCheckboxes
+                                        div
+                                            b Display Features
+                                                .form-check
+                                                    label.form-check-label
+                                                        input.checkbox-input(type='checkbox' name='requestsTable' id='requestsTable' value='requestsTable' checked=requestsTable)
+                                                        |  Enable request table
+                                                .form-check
+                                                    label.form-check-label
+                                                        input.checkbox-input(type='checkbox' name='tutorTable' id='tutorTable' value='tutorTable' checked=tutorTable)
+                                                        |  Enable tutor table
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group.optionScrollingText
+                                        .form-check
+                                            label.form-check-label
+                                                input.checkbox-input(type='checkbox' name='scrollingText' id='scrollingText' value='scrollingText' checked=scrollingText.enabled)
+                                                |  Enable scrolling marquee
+                                        label(for'scrollMsg') Scrolling text to display:
+                                        |
+                                        input#scrollMsg.textScrollMessage.form-control(type='text' name='message' value=scrollingText.text disabled=!scrollingText.enabled)
+                            .row
+                                .col.col-md-12
+                                    fieldset.form-group
+                                        button.btn.btn-primary(type='submit') Apply Options
+                                        if (done)
+                                            div
+                                                p Changes Made!
+            .col.col-md-5
+                fieldset.optionPaneFieldset
+                    .optionPane
+                        .row
+                            .col-md-12
+                                h3 Center-Specific Customizations
+            .col.col-md-1

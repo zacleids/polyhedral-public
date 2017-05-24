@@ -1,0 +1,5 @@
+Tim, MATH-502, Table 01, 10, Ed, Ed
+Luke, MATH-152, Table 14, 8, , Susan
+Diane, CIS-160WS, PC's CS/CIS, 7, , Jeff
+Paul, CS-1, Table 10, 4, ,
+Lisa, PHYS-4A, STEM Balcony, 2, ,
